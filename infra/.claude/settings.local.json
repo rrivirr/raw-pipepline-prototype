@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:registry.terraform.io)",
+      "Bash(curl -s \"https://api.github.com/repos/timescale/terraform-provider-timescale/git/trees/main?recursive=1\")"
+    ]
+  }
+}
