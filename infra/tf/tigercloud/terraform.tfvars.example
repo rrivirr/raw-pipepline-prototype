@@ -1,0 +1,13 @@
+# Copy to secrets.tfvars and fill in real values. Never commit the copy.
+#   cp terraform.tfvars.example secrets.tfvars
+#   terraform plan -var-file=secrets.tfvars
+
+ts_project_id = "WWWWWWWWWW"
+ts_access_key = "XXXXXXXXXXXXXXXXXXXXXXXXXX"
+ts_secret_key = "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
+
+# Optional overrides. Defaults already match the spec.
+# service_name = "sensor-ingest"
+# region_code  = "us-east-1"
+# milli_cpu    = 500
+# memory_gb    = 2

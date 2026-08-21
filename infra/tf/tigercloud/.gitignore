@@ -1,0 +1,16 @@
+# Local state holds the service password and hostname in cleartext.
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+crash.*.log
+
+# Real credentials. terraform.tfvars.example is committed and does not match.
+*.tfvars
+*.auto.tfvars
+
+# Saved plan artifacts.
+tfplan
+*.tfplan
+
+# .terraform.lock.hcl is intentionally committed.
