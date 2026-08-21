@@ -1,0 +1,1 @@
+Generate terraform IaC that creates a new timescaledb service called sensor-ingest with the following properties.  Size of the computer and storage are 0.5 CPU and 2 GiB memory.  For the terraform backend, use local storage.  Place all generated files in the subfolder 'tigercloud'.
