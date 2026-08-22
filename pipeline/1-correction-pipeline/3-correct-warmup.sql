@@ -3,7 +3,7 @@
 --- any gap beyond the threshold indicated a warmup or a potential warmup (state unknown with data outage)
 --- or flag periods with certain signature defined by the data scientist
 
-CREATE OR REPLACE PROCEDURE correct_warmup()
+CREATE OR REPLACE PROCEDURE correct_warmup(lineage VARCHAR(36))
   RETURNS BOOLEAN
   AS
   $$
@@ -35,7 +35,13 @@ CREATE OR REPLACE TABLE "3_correct_warmup" AS
 -- tag lineage here
 -- lineage will be a json column where data is appended.
 -- it should be one run-level lineage that travels along in the pipeline with this job.  the rows get a lineage id.
-
+UPDATE lineage 
+SET attributes = OBJECT_INSERT(
+    attributes,
+    'warmup_correction',
+    OBJECT_CONSTRUCT('warmup_interval', :warmup_reset),
+    TRUE)
+WHERE id = :lineage;
 
 RETURN TRUE;
 END;

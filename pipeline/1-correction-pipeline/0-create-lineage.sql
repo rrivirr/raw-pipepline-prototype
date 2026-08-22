@@ -12,7 +12,7 @@ DECLARE
 BEGIN
   new_id := UUID_STRING();
 
-  INSERT INTO lineage (id, created_at, data)
+  INSERT INTO lineage (id, created_at, attributes)
   SELECT :new_id, CURRENT_TIMESTAMP(), PARSE_JSON('{}');
 
   RETURN new_id;
