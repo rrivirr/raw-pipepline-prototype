@@ -1,0 +1,17 @@
+# Local state. No secrets in this module's resources, but the file is still
+# unlocked and unversioned and should not be shared through git.
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+crash.*.log
+
+# Real variable values. terraform.tfvars.example is committed and does not match.
+*.tfvars
+*.auto.tfvars
+
+# Saved plan artifacts.
+tfplan
+*.tfplan
+
+# .terraform.lock.hcl is intentionally committed.

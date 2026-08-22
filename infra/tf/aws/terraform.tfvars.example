@@ -1,0 +1,15 @@
+# Copy to secrets.tfvars and fill in real values. Never commit the copy.
+#   cp terraform.tfvars.example secrets.tfvars
+#   terraform plan -var-file=secrets.tfvars
+
+# Required. Who may assume the role. See variables.tf for why there is no default.
+trusted_principal_arns = ["arn:aws:iam::123456789012:role/tigerlake-connector"]
+
+# Strongly recommended when the trustee is an account you do not control.
+# external_id = "ZZZZZZZZZZZZZZZZ"
+
+# Optional overrides. Defaults already match the spec.
+# aws_region  = "us-west-2"
+# bucket_name = "rriv-sensor-data"
+# role_name   = "rriv-sensor-data-access"
+# tags        = { project = "rriv-sensor-data", managedby = "terraform" }
