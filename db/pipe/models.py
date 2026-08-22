@@ -1,7 +1,9 @@
-from sqlalchemy import JSON, Column, DateTime, String, create_engine
+
+import uuid
+
+from sqlalchemy import JSON, UUID, Column, DateTime, Numeric, String, create_engine, func
 from sqlalchemy.orm import DeclarativeBase
-from dotenv import load_dotenv
-import os
+
 
 
 class Base(DeclarativeBase):
@@ -11,7 +13,7 @@ class SensorData(Base):
     __tablename__ = 'sensor_data' 
     serial_number = Column(String)
     measured_at = Column(DateTime)
-    delivered_at = Column(DateTime)
+    delivered_at = Column(DateTime, nullable=False)
     device_type = Column(String)
     payload = Column(JSON)
     telemetry = Column(JSON)
@@ -20,14 +22,29 @@ class SensorData(Base):
         "primary_key": [serial_number, measured_at]
     }
 
+class Meter(Base):
+    __tablename__ = "meter"
+    id = Column(UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
+    serial_number = Column(String)
+    rate = Column(Numeric(precision=12, scale=6))
+    length = Column(Numeric(precision=12, scale=6))
+    measured_at = Column(DateTime, nullable=False)
+     
+    __mapper_args__ = {
+        "primary_key": [id]
+    }
+   
 
-load_dotenv()
 
-# Create a SQLite database engine (file named 'app.db')
-engine = create_engine(os.getenv('DATABASE_URL'))
+# from dotenv import load_dotenv
+# import os
+# load_dotenv()
 
-# Create tables in the database (if they don’t exist)
-Base.metadata.create_all(engine)
+# # Create a SQLite database engine (file named 'app.db')
+# engine = create_engine(os.getenv('DATABASE_URL'))
+
+# # Create tables in the database (if they don’t exist)
+# Base.metadata.create_all(engine)
 
 # # Create hypertable manually or via extension
 # with engine.connect() as conn:
