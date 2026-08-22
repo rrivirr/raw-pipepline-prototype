@@ -3,7 +3,7 @@
 
 -- TODO: this should be a view, not a copy
 
-CREATE OR REPLACE PROCEDURE take_data( start_at TIMESTAMP, until TIMESTAMP )
+CREATE OR REPLACE PROCEDURE take_data( start_at TIMESTAMP, until TIMESTAMP, lineage VARCHAR(36) )
   RETURNS BOOLEAN
   AS
   $$
@@ -20,7 +20,14 @@ CREATE OR REPLACE TABLE "1_analysis_rows" AS
     AND measured_at < :until;
 
 -- update lineage
-
+-- todo:  make this a function
+UPDATE lineage 
+SET attributes = OBJECT_INSERT(
+    attributes,
+    'processing_range',
+    OBJECT_CONSTRUCT('prelude', :prelude, 'start_at', :start_at, 'until', :until),
+    TRUE)
+WHERE id = :lineage;
 
 RETURN TRUE;
 END;
