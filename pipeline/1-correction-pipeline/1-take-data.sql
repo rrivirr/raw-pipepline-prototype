@@ -14,7 +14,7 @@ BEGIN
 
 LET prelude_date_part := 'MINUTE';
 LET prelude_date_value := -30;
-LET prelude TIMESTAMP := DATEADD(:prelude_date_part, :prelude_date_value, start_at);
+LET prelude TIMESTAMP := DATEADD(:prelude_date_part, :prelude_date_value, :start_at);
 
 CREATE OR REPLACE TEMPORARY TABLE data_input_range AS
   SELECT 
