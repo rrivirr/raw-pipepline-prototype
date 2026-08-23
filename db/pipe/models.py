@@ -33,24 +33,31 @@ class Meter(Base):
     __mapper_args__ = {
         "primary_key": [id]
     }
-   
+
+class CorrectionLineage(Base):
+    __tablename__ = "correction_lineage"
+ 
+    id = Column(UUID, nullable=False)
+    created_at = Column(DateTime, nullable=False)
+    attributes = Column(JSON, nullable=False)
+
+    __mapper_args__ = {
+        "primary_key": [id]
+    }
+ 
+
+class MeterReadingCorrected(Base):
+    __tablename__ = "meter_reading_corrected"
+
+    serial_number = Column(String)
+    rate = Column(Numeric(12, 6))
+    length = Column(Numeric(12, 6))
+    measured_at = Column(DateTime)
+    id = Column(String)  
+
+    __mapper_args__ = {
+        "primary_key": [id]
+    }
 
 
-# from dotenv import load_dotenv
-# import os
-# load_dotenv()
 
-# # Create a SQLite database engine (file named 'app.db')
-# engine = create_engine(os.getenv('DATABASE_URL'))
-
-# # Create tables in the database (if they don’t exist)
-# Base.metadata.create_all(engine)
-
-# # Create hypertable manually or via extension
-# with engine.connect() as conn:
-#     conn.execute(text("""
-#         SELECT create_hypertable('sensor_data', 'timestamp',
-#                                  partitioning_column => 'device_id',
-#                                  number_partitions => 8);
-#     """))
-#     conn.commit()
