@@ -36,10 +36,10 @@ CREATE OR REPLACE TASK correct_warmup
 AS 
 DECLARE
   output_staged_file STRING;
+  ctx VARIANT;
 BEGIN
-  LET intake_file := (SELECT SYSTEM$GET_PREDECESSOR_RETURN_VALUE('RUN_CORRECTION'));
-  LET lineage VARCHAR(36) := (SELECT SUBSTRING(:intake_file, 1, POSITION('_', :intake_file)-1));
-  CALL correct_warmup(:lineage, :intake_file) INTO :output_staged_file;
+  CALL resolve_predecessor_context('RUN_CORRECTION') INTO :ctx;
+  CALL correct_warmup(:ctx:lineage::STRING, :ctx:intake_file::STRING) INTO :output_staged_file;
   CALL SYSTEM$SET_RETURN_VALUE( :output_staged_file );
 END;
 
@@ -50,12 +50,13 @@ CREATE OR REPLACE TASK correct_low_cutoff
 AS 
 DECLARE
   output_staged_file STRING;
+ctx VARIANT;
 BEGIN
-  LET intake_file := (SELECT SYSTEM$GET_PREDECESSOR_RETURN_VALUE('CORRECT_WARMUP'));
-  LET lineage VARCHAR(36) := (SELECT SUBSTRING(:intake_file, 1, POSITION('_', :intake_file)-1));
-  CALL correct_low_cutoff(:lineage, :intake_file) INTO :output_staged_file;
+  CALL resolve_predecessor_context('CORRECT_WARMUP') INTO :ctx;
+  CALL correct_low_cutoff(:ctx:lineage::STRING, :ctx:intake_file::STRING) INTO :output_staged_file;
   CALL SYSTEM$SET_RETURN_VALUE( :output_staged_file );
 END;
+
 
 
 
