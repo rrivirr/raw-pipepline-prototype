@@ -1,6 +1,8 @@
 CREATE STAGE IF NOT EXISTS correction_stage
   FILE_FORMAT = (TYPE = PARQUET);
 
+CREATE STAGE IF NOT EXISTS calibration_stage
+  FILE_FORMAT = (TYPE = PARQUET);
 
 
 CREATE OR REPLACE PROCEDURE load_from_stage (suffix VARCHAR(36), staged_file VARCHAR(36))
@@ -31,3 +33,5 @@ RETURN tablename;
 END;
 $$
 ;
+
+
