@@ -1,13 +1,18 @@
 
+import enum
 import uuid
 
-from sqlalchemy import JSON, UUID, Column, DateTime, Numeric, String, create_engine, func
+from sqlalchemy import JSON, UUID, Column, DateTime, Enum, Integer, Numeric, String, create_engine, func
 from sqlalchemy.orm import DeclarativeBase
 
 
 
 class Base(DeclarativeBase):
     pass
+
+# 
+# Data Pipe Tables
+#
 
 class SensorData(Base):
     __tablename__ = 'sensor_data' 
@@ -34,6 +39,11 @@ class Meter(Base):
         "primary_key": [id]
     }
 
+
+#
+# Tables synced back from correction pipeline
+#
+
 class CorrectionLineage(Base):
     __tablename__ = "correction_lineage"
  
@@ -59,5 +69,26 @@ class MeterReadingCorrected(Base):
         "primary_key": [id]
     }
 
+#
+# Calibration Control
+#
+
+class CalibrationType(enum.Enum):
+    LINEAR = "linear"
+    PARABOLIC = "parabolic"
+    PIECEWISE_LINEAR_4 = "piecewise_linear_4"
 
 
+class Calibration(Base):
+    __tablename__ = "calibration"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    serial_number = Column(String)
+    calibration_type = Column(Enum(CalibrationType, native_enum=False), nullable=False)
+    parameters = Column(JSON, nullable=False) # structure variants, currently unchecked
+    start_date = Column(DateTime, nullable=False)
+    end_date = Column(DateTime, nullable=True)
+
+    __mapper_args__ = {
+        "primary_key": [id]
+    }    
