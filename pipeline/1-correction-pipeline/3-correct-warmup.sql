@@ -31,7 +31,7 @@ EXECUTE IMMEDIATE copy_sql;
 
 -- TODO: this detection logic needs to be improved.  the preceeding rows count is a not a precise method
 correction_sql := '
-CREATE OR REPLACE TABLE ' || step_name || ' AS
+CREATE OR REPLACE TEMPORARY TABLE ' || step_name || ' AS
     SELECT 
         id,
         serial_number,
@@ -68,7 +68,7 @@ CALL update_lineage(:lineage,
 
 
 
-output_file :=  :lineage || TO_VARCHAR(CURRENT_TIMESTAMP(), 'YYYYMMDD_HH24MISS') || '_' || :step_name;
+output_file :=  :lineage || '_' || TO_VARCHAR(CURRENT_TIMESTAMP(), 'YYYYMMDD_HH24MISS') || '_' || :step_name;
 
 copy_sql := 'COPY INTO @correction_stage/' || output_file || '
                FROM ' || :step_name || '
