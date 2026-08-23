@@ -2,7 +2,7 @@
 -- INSERT INTO lineage (id, created_at, data)
 -- SELECT UUID_STRING(), CURRENT_TIMESTAMP(), PARSE_JSON('{}');
 
-CREATE OR REPLACE PROCEDURE new_lineage_row()
+CREATE OR REPLACE PROCEDURE new_processing_lineage()
 RETURNS VARCHAR
 LANGUAGE SQL
 AS

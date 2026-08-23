@@ -32,9 +32,12 @@ CREATE OR REPLACE STAGE corrected_raw
 
 LIST @corrected_raw;
 
+
+
+
 -----------Test
-COPY INTO 's3://rriv-corrected-raw/lineage-export/'
-FROM lineage
-STORAGE_INTEGRATION = correction_s3_integration   -- or use CREDENTIALS = (...) inline
-FILE_FORMAT = (TYPE = PARQUET)
-HEADER = TRUE;
+-- COPY INTO 's3://rriv-corrected-raw/lineage-export/'
+-- FROM lineage
+-- STORAGE_INTEGRATION = correction_s3_integration   -- or use CREDENTIALS = (...) inline
+-- FILE_FORMAT = (TYPE = PARQUET)
+-- HEADER = TRUE;

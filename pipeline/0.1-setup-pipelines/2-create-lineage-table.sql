@@ -3,3 +3,18 @@ CREATE OR REPLACE TABLE lineage (
     created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
     attributes VARIANT DEFAULT PARSE_JSON('{}')
 );
+
+
+CREATE OR REPLACE PROCEDURE update_lineage(lineage_id VARCHAR(36), object_key VARCHAR, object_values OBJECT)
+RETURNS STRING
+LANGUAGE SQL
+AS
+$$
+BEGIN
+    UPDATE lineage
+    SET attributes = OBJECT_INSERT(attributes, :object_key, :object_values, TRUE)
+    WHERE id = :lineage_id;
+
+    RETURN 'Updated lineage row ' || lineage_id;
+END;
+$$;

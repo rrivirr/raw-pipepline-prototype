@@ -1,0 +1,2 @@
+CREATE STAGE IF NOT EXISTS correction_stage
+  FILE_FORMAT = (TYPE = PARQUET);
