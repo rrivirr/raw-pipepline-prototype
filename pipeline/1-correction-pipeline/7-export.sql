@@ -5,7 +5,6 @@
 -- second, as a patch to append/overwrite the most up to date raw import for serving
 
 
-
 CREATE OR REPLACE PROCEDURE export_corrected_data(staged_file VARCHAR(255))
 RETURNS BOOL
 LANGUAGE SQL
@@ -60,6 +59,18 @@ BEGIN
   file_path := 's3://rriv-corrected-raw/lineage-export/'
                || TO_VARCHAR(CURRENT_TIMESTAMP(), 'YYYY-MM-DD"T"HH24-MI-SS')
                || '_lineage.parquet';
+
+
+-- COPY INTO @correction_stage/
+-- FROM (
+--     SELECT
+--         serial_number || '/' || lineage || '/data' AS partition_path,
+--         *
+--     FROM meter_readings
+-- )
+-- PARTITION BY (partition_path)
+-- FILE_FORMAT = (TYPE = PARQUET)
+-- MAX_FILE_SIZE = 100000000;
 
   copy_sql := 'COPY INTO ''' || file_path || '''
                FROM (SELECT * FROM lineage WHERE created_at > TO_TIMESTAMP_NTZ(''' || last_wm::STRING || '''))
