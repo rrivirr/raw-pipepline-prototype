@@ -1,51 +1,44 @@
-ALTER TASK start_new_processing_lineage SUSPEND;
-ALTER TASK take_data SUSPEND;
-ALTER TASK correct_warmup SUSPEND;
-ALTER TASK export SUSPEND;
 
-
-
-CREATE OR REPLACE  TASK start_new_processing_lineage
+CREATE OR REPLACE TASK run_correction
   warehouse=COMPUTE_WH
   schedule='USING CRON 10 * * * * America/Los_Angeles'
 AS 
 DECLARE
   lineage STRING;
-BEGIN
-  CALL new_processing_lineage() INTO lineage;
-  CALL SYSTEM$SET_RETURN_VALUE( :lineage );
-END;
-    
-    
-    --   SCHEDULE = 'USING CRON */5 * * * * UTC'
-
-
-
-CREATE OR REPLACE TASK take_data
-  WAREHOUSE=COMPUTE_WH
-  AFTER start_new_processing_lineage
-AS 
-DECLARE
   output_staged_file STRING;
+  effective_start_at: DATETIME;
+  effective_until: DATETIME;
 BEGIN
-  LET lineage := SYSTEM$GET_PREDECESSOR_RETURN_VALUE('START_NEW_PROCESSING_LINEAGE');
-  LET start_at := TO_TIMESTAMP(SELECT DATE_PART(EPOCH, date_trunc('hour', SYSDATE() - INTERVAL '1 hour')))); -- start of last hour
-  LET until DATETIME := (SELECT DATEADD('hour', 1, :start_at));
-  CALL take_data(:start_at, :until, :lineage) INTO :output_staged_file;
+
+  -- check if this is a manual re-run
+  SELECT 
+    COALESCE(manual_data_start_at, TO_TIMESTAMP(SELECT DATE_PART(EPOCH, date_trunc('hour', SYSDATE() - INTERVAL '1 hour')))),
+    COALESCE(manual_data_until, (SELECT DATEADD('hour', 1, TO_TIMESTAMP(SELECT DATE_PART(EPOCH, date_trunc('hour', SYSDATE() - INTERVAL '1 hour'))) )))
+    INTO :effective_start_at, :effective_until
+    FROM task_params WHERE task_name = 'correction_run';
+
+  UPDATE task_params SET manual_data_start_at = NULL, manual_data_until = NULL WHERE task_name = 'correction_run';
+
+  CALL new_processing_lineage() INTO lineage;
+
+  CALL take_data(:effective_start_at, :effective_until, :lineage) INTO :output_staged_file;
   CALL SYSTEM$SET_RETURN_VALUE( :output_staged_file );
 END;
+    
+    
+ --   SCHEDULE = 'USING CRON */5 * * * * UTC'
 
 
 
 CREATE OR REPLACE TASK correct_warmup
   WAREHOUSE=COMPUTE_WH
-  AFTER take_data
+  AFTER run_correction
 AS 
 DECLARE
   output_staged_file STRING;
 BEGIN
-  LET lineage := (SELECT SYSTEM$GET_PREDECESSOR_RETURN_VALUE('START_NEW_PROCESSING_LINEAGE'));
-  LET intake_file := (SELECT SYSTEM$GET_PREDECESSOR_RETURN_VALUE('TAKE_DATA'));
+  LET intake_file := (SELECT SYSTEM$GET_PREDECESSOR_RETURN_VALUE('RUN_CORRECTION'));
+  LET lineage VARCHAR(36) := (SELECT SUBSTRING(:intake_file, 1, POSITION('_', :intake_file)-1));
   CALL correct_warmup(:lineage, :intake_file) INTO :output_staged_file;
   CALL SYSTEM$SET_RETURN_VALUE( :output_staged_file );
 END;
@@ -58,8 +51,8 @@ AS
 DECLARE
   output_staged_file STRING;
 BEGIN
-  LET lineage := (SELECT SYSTEM$GET_PREDECESSOR_RETURN_VALUE('START_NEW_PROCESSING_LINEAGE'));
   LET intake_file := (SELECT SYSTEM$GET_PREDECESSOR_RETURN_VALUE('CORRECT_WARMUP'));
+  LET lineage VARCHAR(36) := (SELECT SUBSTRING(:intake_file, 1, POSITION('_', :intake_file)-1));
   CALL correct_low_cutoff(:lineage, :intake_file) INTO :output_staged_file;
   CALL SYSTEM$SET_RETURN_VALUE( :output_staged_file );
 END;
@@ -79,7 +72,6 @@ END;
 
 
 ALTER TASK export RESUME;
-ALTER TASK correct_warmup RESUME;
 ALTER TASK correct_low_cutoff RESUME;
-ALTER TASK take_data RESUME;
-ALTER TASK start_new_processing_lineage RESUME;
+ALTER TASK correct_warmup RESUME;
+ALTER TASK run_correction RESUME;
