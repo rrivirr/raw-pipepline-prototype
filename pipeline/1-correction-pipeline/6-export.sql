@@ -6,29 +6,35 @@
 
 
 
-CREATE OR REPLACE PROCEDURE export_corrected_data()
-RETURNS STRING
+CREATE OR REPLACE PROCEDURE export_corrected_data(staged_file VARCHAR(255))
+RETURNS BOOL
 LANGUAGE SQL
 AS
 $$
 DECLARE
   file_path STRING;
   copy_sql STRING;
+  temporary_table STRING;
 BEGIN
 
- file_path := 's3://rriv-corrected-raw/corrected-data-export/'
+  -- load the file and query to remove any columns we don't want to push back to timescaldb
+  call load_from_stage ('done', :staged_file) INTO :temporary_table;
+
+  
+  file_path := 's3://rriv-corrected-raw/corrected-data-export/'
                || TO_VARCHAR(CURRENT_TIMESTAMP(), 'YYYY-MM-DD"T"HH24-MI-SS')
                || '_corrected_data.parquet';
 
--- todo: this needs to read from the final processing table.
   copy_sql := 'COPY INTO ''' || file_path || '''
-               FROM ( SELECT serial_number, rate, length, measured_at, id FROM "3_correct_warmup" )
-               STORAGE_INTEGRATION = correction_s3_integration
-               FILE_FORMAT = (TYPE = PARQUET)
-               ';
+              FROM ( SELECT serial_number, rate, length, measured_at, id 
+              FROM ' || :temporary_table || ' )
+              STORAGE_INTEGRATION = correction_s3_integration
+              FILE_FORMAT = (TYPE = PARQUET)
+              ';
 
-    EXECUTE IMMEDIATE copy_sql;
+  EXECUTE IMMEDIATE copy_sql;
 
+  RETURN TRUE;
 END;
 $$;
 
