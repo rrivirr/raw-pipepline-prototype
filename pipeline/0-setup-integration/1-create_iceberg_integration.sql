@@ -17,7 +17,15 @@ CREATE OR REPLACE CATALOG INTEGRATION tiger_s3tables_catalog
   REFRESH_INTERVAL_SECONDS = 120
   ENABLED = TRUE;
 
+-- correction pipeline requirements
 CREATE ICEBERG TABLE tigerlake_tsdb_public_meter
     CATALOG = 'tiger_s3tables_catalog'
     CATALOG_TABLE_NAME = 'tigerlake_tsdb_public_meter'
+    AUTO_REFRESH = TRUE;
+
+
+-- calibration pipeline requirements
+CREATE ICEBERG TABLE tigerlake_tsdb_public_calibration
+    CATALOG = 'tiger_s3tables_catalog'
+    CATALOG_TABLE_NAME = 'tigerlake_tsdb_public_calibration'
     AUTO_REFRESH = TRUE;
