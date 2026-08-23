@@ -60,13 +60,13 @@ END;
 
 
 
--- the EXPORT needs to ignore the prelude
+-- TODO: the EXPORT needs to ignore the prelude
 CREATE OR REPLACE TASK export
   WAREHOUSE=COMPUTE_WH
   AFTER correct_low_cutoff
 AS
 BEGIN
-  LET intake_file := (SELECT SYSTEM$GET_PREDECESSOR_RETURN_VALUE('CORRECT_WARMUP'));
+  LET intake_file := (SELECT SYSTEM$GET_PREDECESSOR_RETURN_VALUE('CORRECT_LOW_CUTOFF'));
   CALL export_corrected_data(:intake_file);
   CALL export_new_lineage_records();
 END;
