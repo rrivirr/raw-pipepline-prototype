@@ -14,8 +14,6 @@ DECLARE
   output_file STRING;
 BEGIN
 
-
-
 LET warmup_reset := 10 * 60; -- TODO: hard coded, add to dag config and run overrides
 
 step_name := 'corrected_data_warmup';
@@ -31,7 +29,7 @@ EXECUTE IMMEDIATE copy_sql;
 
 -- TODO: this detection logic needs to be improved.  the preceeding rows count is a not a precise method
 correction_sql := '
-CREATE OR REPLACE TEMPORARY TABLE ' || step_name || ' AS
+CREATE OR REPLACE TEMPORARY TABLE ' || :step_name || ' AS
     SELECT 
         id,
         serial_number,
