@@ -63,3 +63,43 @@ ALTER TASK export SUSPEND;
 
 
 SELECT SUBSTRING('ok_ok', 1, POSITION('_', 'ok_ok')-1)
+
+
+
+SELECT
+    ARRAY_AGG(
+        OBJECT_CONSTRUCT(
+            'serial_number', dl.serial_number,
+            'attributes', dl.attributes
+        )
+    ) AS devices
+FROM file_intake 
+JOIN tigerlake_tsdb_public_calibration
+    ON (
+  -- file_intake.serial_number = tigerlake_tsdb_public_calibration.serial_number
+  -- AND
+  tigerlake_tsdb_public_calibration.active = true
+  AND file_intake.measured_at >= tigerlake_tsdb_public_calibration.start_date
+  AND file_intake.measured_at < COALESCE(tigerlake_tsdb_public_calibration.end_date, CURRENT_TIMESTAMP())
+  
+);
+GROUP BY l.id, l.created_at, l.attributes;
+
+
+CREATE OR REPLACE TEMPORARY TABLE ' || :step_name || ' AS
+  SELECT file_intake.id, file_intake.serial_number, measured_at, calibration_type, rate, parameters
+    CASE calibration_type
+      WHEN \'linear\' THEN  calibration_linear(rate, PARSE_JSON(parameters):m::FLOAT, PARSE_JSON(parameters):b::FLOAT)
+      WHEN \'parabolic\' THEN 0
+      WHEN \'piecewise_linear_4\' THEN 0
+    END AS calibrated_value
+  FROM file_intake 
+  JOIN tigerlake_tsdb_public_calibration
+  ON (
+    -- file_intake.serial_number = tigerlake_tsdb_public_calibration.serial_number
+    -- AND
+    tigerlake_tsdb_public_calibration.active = true
+    AND file_intake.measured_at >= tigerlake_tsdb_public_calibration.start_date
+    AND file_intake.measured_at < COALESCE(tigerlake_tsdb_public_calibration.end_date, CURRENT_TIMESTAMP())
+    
+  );

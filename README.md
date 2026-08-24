@@ -24,10 +24,11 @@ For this proof of concept, some simplifications were made.
 ```
 .
 ├── db/                 TimescaleDB ingest & serving schema (SQLAlchemy + Alembic)
-├── infra/              Terraform + AWS/Snowflake/Tiger Cloud provisioning
+├── diagrams/           Diagrams describing and scoping the proof of concept
+├── infra/              Terraform + AWS/Snowflake/Tiger Cloud resource provisioning
 ├── pipeline/           Snowflake SQL correction & calibration pipeline
 ├── snowsight/          Snowsight worksheets / dashboards
-├── import/              Ad-hoc SQL snippets for generating test meter data
+├── import/             Ad-hoc SQL snippets for generating test meter data
 └── README.md           Project overview and operating instructions
 ```
 
@@ -41,6 +42,9 @@ Numbered directories run in order; `*.test.sql` files sit beside the step they v
 | `1-setup-pipelines/` | Stages, lineage table, lineage utilities, correction control |
 | `2-correction-pipeline-steps/` | Per-step SQL: claim data → delete ranges → warmup, low-cutoff and drift corrections → quality flags → apply calibrations → export |
 | `3-correction-calibration-pipeline-dag/` | Snowflake task DAG plus a manual re-run variant |
+
+## Diagram
+![Pipeline Proof of Concept Diagram](diagrams/proof-of-concept-build.png)
 
 ## Example Output
 
