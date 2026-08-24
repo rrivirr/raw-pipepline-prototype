@@ -5,7 +5,7 @@ CREATE OR REPLACE PROCEDURE apply_calibrations(lineage VARCHAR(36), staged_file 
   $$
 DECLARE
   copy_sql STRING;
-  correction_sql STRING;
+  calibration_sql STRING;
   step_name STRING;
   output_file STRING;
 BEGIN
@@ -55,7 +55,7 @@ CALL update_lineage(:lineage,
 
 output_file :=  :lineage || '_' || TO_VARCHAR(CURRENT_TIMESTAMP(), 'YYYYMMDD_HH24MISS') || '_' || :step_name;
 
-copy_sql := 'COPY INTO @calibration_stage/' || output_file || '
+copy_sql := 'COPY INTO @correction_stage/' || output_file || '
                FROM ' || :step_name || '
                FILE_FORMAT = (TYPE = PARQUET)
                HEADER = TRUE

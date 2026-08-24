@@ -26,6 +26,13 @@ CREATE OR REPLACE TEMPORARY TABLE ' || tablename || '
 
 EXECUTE IMMEDIATE create_sql;
 
+let alter_sql := '
+ALTER TABLE ' || tablename || ' 
+  ADD COLUMN CALIBRATED_VALUE NUMBER(12,6)
+  ;';
+
+EXECUTE IMMEDIATE alter_sql;
+
 
 let copy_sql := '
 COPY INTO ' || tablename || ' 

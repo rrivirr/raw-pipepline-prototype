@@ -1,0 +1,86 @@
+-- invoke dag
+-- CALL run_correction(CURRENT_TIMESTAMP(), DATEADD('day', -1, CURRENT_TIMESTAMP()));
+
+-- test generated
+-- prompt: generate a snowflake procedure to test the pass/fail status of an entire DAG run.s
+
+CREATE OR REPLACE PROCEDURE test_run_correction_run(start_at DATETIME, until DATETIME)
+RETURNS STRING
+LANGUAGE SQL
+AS
+$$
+DECLARE
+  attempts INTEGER DEFAULT 0;
+  run_id_val NUMBER;
+  overall_state STRING;
+  failed_tasks STRING;
+BEGIN
+  CALL run_correction(:start_at, :until);
+
+  -- Give the scheduler a moment to register the run, then capture its run_id
+  CALL SYSTEM$WAIT(5);
+
+  SELECT run_id INTO :run_id_val
+  FROM TABLE(INFORMATION_SCHEMA.TASK_HISTORY(TASK_NAME => 'run_correction', RESULT_LIMIT => 1))
+  ORDER BY scheduled_time DESC
+  LIMIT 1;
+
+  LOOP
+    CALL SYSTEM$WAIT(10);
+    attempts := attempts + 1;
+
+    -- Pull every task that belongs to this specific DAG run
+    SELECT
+      CASE
+        WHEN COUNT_IF(state = 'FAILED') > 0 THEN 'FAILED'
+        WHEN COUNT_IF(state IN ('SCHEDULED', 'EXECUTING')) > 0 THEN 'RUNNING'
+        ELSE 'SUCCEEDED'
+      END
+    INTO :overall_state
+    FROM TABLE(INFORMATION_SCHEMA.TASK_HISTORY(RESULT_LIMIT => 100))
+    WHERE run_id = :run_id_val;
+
+    IF (overall_state != 'RUNNING' OR attempts > 30) THEN
+      BREAK;
+    END IF;
+  END LOOP;
+
+  IF (overall_state = 'FAILED') THEN
+    SELECT LISTAGG(name || ': ' || error_message, '; ')
+    INTO :failed_tasks
+    FROM TABLE(INFORMATION_SCHEMA.TASK_HISTORY(RESULT_LIMIT => 100))
+    WHERE run_id = :run_id_val AND state = 'FAILED';
+
+    RETURN 'FAILED - ' || failed_tasks;
+  END IF;
+
+  IF (attempts > 30 AND overall_state = 'RUNNING') THEN
+    RETURN 'TIMEOUT - DAG did not complete in time';
+  END IF;
+
+  RETURN overall_state;
+END;
+$$;
+
+
+-- UPDATE task_params SET test_stage = '' 
+CALL test_run_correction_run('2026-08-22 00:00:00'::TIMESTAMP, DATEADD('day', 1, '2026-08-22 00:00:00'::TIMESTAMP));
+
+LIST @corrected_outputs_stage/flow_0001/2026/08/22;
+SELECT *, 
+FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))
+WHERE TO_TIMESTAMP("last_modified", 'DY, DD MON YYYY HH24:MI:SS GMT') >= DATEADD(minute, -5, CONVERT_TIMEZONE('UTC', CURRENT_TIMESTAMP())::TIMESTAMP_NTZ)
+ORDER BY "last_modified" DESC;
+
+LIST @corrected_outputs_stage/flow_0001/2026/08/22;
+SET file_path = (
+    SELECT '@corrected_outputs_stage' || REPLACE("name", 's3://rriv-corrected-raw/corrected-data-export', '')
+    FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))
+    WHERE TO_TIMESTAMP("last_modified", 'DY, DD MON YYYY HH24:MI:SS GMT') >= DATEADD(minute, -5, CONVERT_TIMEZONE('UTC', CURRENT_TIMESTAMP())::TIMESTAMP_NTZ)
+    ORDER BY "last_modified" DESC
+    LIMIT 1
+);
+SELECT $file_path;
+EXECUTE IMMEDIATE 'SELECT $1 FROM ' || $file_path || ' LIMIT 2';
+
+-- SELECT $1 FROM @corrected_outputs_stage/flow_0001/2026/08/20/edc699de-50c2-4a11-986f-55ca3b8fe191/data_01c697ba-010a-de87-0031-da6f0009c886_007_2_0.snappy.parquet limit 2;

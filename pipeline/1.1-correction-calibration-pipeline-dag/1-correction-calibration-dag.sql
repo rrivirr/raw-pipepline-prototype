@@ -58,6 +58,23 @@ BEGIN
 END;
 
 
+--TODO: add task here to cut out the prelude
+
+
+CREATE OR REPLACE TASK apply_calibrations
+  WAREHOUSE=COMPUTE_WH
+  AFTER correct_low_cutoff -- just the last step in the correction pipeline for now
+AS
+DECLARE
+  ctx VARIANT;
+  output_staged_file STRING;
+BEGIN
+
+  CALL resolve_predecessor_context('CORRECT_LOW_CUTOFF') INTO :ctx;
+  CALL apply_calibrations(:ctx:lineage::STRING, :ctx:intake_file::STRING) INTO :output_staged_file;
+  CALL SYSTEM$SET_RETURN_VALUE( :output_staged_file );
+  
+END;
 
 
 -- TODO: the EXPORT needs to ignore the prelude
@@ -68,7 +85,7 @@ AS
 DECLARE
   ctx VARIANT;
 BEGIN
-  CALL resolve_predecessor_context('CORRECT_LOW_CUTOFF') INTO :ctx;
+  CALL resolve_predecessor_context('APPLY_CALIBRATIONS') INTO :ctx;
   CALL export_corrected_data(:ctx:lineage::STRING, :ctx:intake_file::STRING);
   CALL export_new_lineage_records();
 END;
