@@ -28,6 +28,7 @@ copy_sql := 'COPY INTO file_intake
 EXECUTE IMMEDIATE copy_sql;
 
 -- TODO: this detection logic needs to be improved.  the preceeding rows count is a not a precise method
+-- TODO: adjust to null instead of removing, so that downstream consumers will be updated
 correction_sql := '
 CREATE OR REPLACE TEMPORARY TABLE ' || :step_name || ' AS
     SELECT 

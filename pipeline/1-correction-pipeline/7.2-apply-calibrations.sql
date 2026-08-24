@@ -21,7 +21,7 @@ copy_sql := 'COPY INTO file_intake
 
 EXECUTE IMMEDIATE copy_sql;
 
--- TODO: JSON is not right here, transmit an array of decimal values instead
+-- TODO: PARSE_JSON is a bad idea here, transmit an array of decimal values instead
 calibration_sql := '
 CREATE OR REPLACE TEMPORARY TABLE ' || :step_name || ' AS
   SELECT file_intake.id, file_intake.serial_number, measured_at, calibration_type, rate, parameters
@@ -44,13 +44,25 @@ CREATE OR REPLACE TEMPORARY TABLE ' || :step_name || ' AS
 
 EXECUTE IMMEDIATE calibration_sql;
     
--- TODO: what goes into the lineage here?  we need to expose the date ranges, 
--- TODO: and lineages will split by device later, which is why splitting the pipelines is necessary
 CALL update_lineage(:lineage,  
     :step_name,
     OBJECT_CONSTRUCT('calibration', 'applied')
   );
 
+  -- TODO: update device data lineage
+  -- insert_sql := '
+  --   INSERT INTO device_lineage (group_lineage, serial_number, attributes)
+  --   SELECT
+  --       ''' || :lineage || ''',
+  --       serial_number,
+  --       OBJECT_CONSTRUCT(''calibration'', low_cutoff)
+  --   FROM (
+  --     SELECT ARRAY_AGG(DISTINCT OBJECT_CONSTRUCT('serial_number', serial_number, 'calibration_type', calibration_type)) AS records
+  --     FROM (SELECT DISTINCT serial_number, calibration_type FROM correction_control);
+  --   );
+  -- ';
+
+  -- EXECUTE IMMEDIATE
 
 
 output_file :=  :lineage || '_' || TO_VARCHAR(CURRENT_TIMESTAMP(), 'YYYYMMDD_HH24MISS') || '_' || :step_name;
