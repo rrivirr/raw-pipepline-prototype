@@ -24,3 +24,11 @@ BEGIN
   );
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION extract_lineage_id(intake_file VARCHAR)
+RETURNS VARCHAR
+LANGUAGE SQL
+AS
+$$
+  SUBSTRING(intake_file, 1, POSITION('_' IN intake_file) - 1)
+$$;
