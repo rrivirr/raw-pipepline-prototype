@@ -50,7 +50,7 @@ CREATE OR REPLACE TASK correct_low_cutoff
 AS 
 DECLARE
   output_staged_file STRING;
-ctx VARIANT;
+  ctx VARIANT;
 BEGIN
   CALL resolve_predecessor_context('CORRECT_WARMUP') INTO :ctx;
   CALL correct_low_cutoff(:ctx:lineage::STRING, :ctx:intake_file::STRING) INTO :output_staged_file;
