@@ -10,7 +10,6 @@ DECLARE
   output_file STRING;
 BEGIN
 
-
 step_name := 'apply_calibrations';
 
 CREATE OR REPLACE TEMPORARY TABLE file_intake LIKE TIGERLAKE_TSDB_PUBLIC_METER;
@@ -22,11 +21,10 @@ copy_sql := 'COPY INTO file_intake
 
 EXECUTE IMMEDIATE copy_sql;
 
--- TODO: JSON is not right here, terrible performance.  Transmit an array of decimal values instead
-
+-- TODO: JSON is not right here, transmit an array of decimal values instead
 calibration_sql := '
-CREATE OR REPLACE TEMPORARY TABLE ' || step_name || ' AS
-  SELECT file_intake.id, file_intake.serial_number, measured_at, calibration_type, rate,
+CREATE OR REPLACE TEMPORARY TABLE ' || :step_name || ' AS
+  SELECT file_intake.id, file_intake.serial_number, measured_at, calibration_type, rate, parameters
     CASE calibration_type
       WHEN \'linear\' THEN  calibration_linear(rate, PARSE_JSON(parameters):m::FLOAT, PARSE_JSON(parameters):b::FLOAT)
       WHEN \'parabolic\' THEN 0
@@ -35,17 +33,19 @@ CREATE OR REPLACE TEMPORARY TABLE ' || step_name || ' AS
   FROM file_intake 
   JOIN tigerlake_tsdb_public_calibration
   ON (
-    file_intake.serial_number = tigerlake_tsdb_public_calibration.serial_number
+    -- file_intake.serial_number = tigerlake_tsdb_public_calibration.serial_number
+    -- AND
+    tigerlake_tsdb_public_calibration.active = true
     AND file_intake.measured_at >= tigerlake_tsdb_public_calibration.start_date
     AND file_intake.measured_at < COALESCE(tigerlake_tsdb_public_calibration.end_date, CURRENT_TIMESTAMP())
+    
   );
   ';
 
 EXECUTE IMMEDIATE calibration_sql;
-
     
--- TODO: what goes into the lineage here?  we need to expose the date range change overs
--- update lineage
+-- TODO: what goes into the lineage here?  we need to expose the date ranges, 
+-- TODO: and lineages will split by device later, which is why splitting the pipelines is necessary
 CALL update_lineage(:lineage,  
     :step_name,
     OBJECT_CONSTRUCT('calibration', 'applied')
