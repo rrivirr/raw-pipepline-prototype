@@ -9,8 +9,10 @@ DECLARE
   output_file STRING;
 BEGIN
 
-  -- placeholder for drift correction algorithm, return staged file input
+  -- placeholder for low cutoff correction algorithm, return staged file input
   RETURN staged_file;
+
+  -- this one easy
 
 END;
 $$;
