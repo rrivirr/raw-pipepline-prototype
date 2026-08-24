@@ -23,7 +23,7 @@ BEGIN
   FROM (
       SELECT
           serial_number || ''/''
-          || TO_VARCHAR(measured_at, ''YYYY/MM/DD'') || ''/''
+          || TO_VARCHAR(measured_at, ''YYYY/MM/DD/HH24'') || ''/''
           || ''' || :lineage || '''  AS partition_path,
           *
       FROM ' || :temporary_table || '
@@ -62,18 +62,6 @@ BEGIN
   file_path := 's3://rriv-corrected-raw/lineage-export/'
                || TO_VARCHAR(CURRENT_TIMESTAMP(), 'YYYY-MM-DD"T"HH24-MI-SS')
                || '_lineage.parquet';
-
-
--- COPY INTO @correction_stage/
--- FROM (
---     SELECT
---         serial_number || '/' || lineage || '/data' AS partition_path,
---         *
---     FROM meter_readings
--- )
--- PARTITION BY (partition_path)
--- FILE_FORMAT = (TYPE = PARQUET)
--- MAX_FILE_SIZE = 100000000;
 
   copy_sql := 'COPY INTO ''' || file_path || '''
                FROM (SELECT * FROM lineage WHERE created_at > TO_TIMESTAMP_NTZ(''' || last_wm::STRING || '''))
