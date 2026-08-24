@@ -92,6 +92,7 @@ END;
 
 
 ALTER TASK export RESUME;
+ALTER TASK apply_calibrations RESUME;
 ALTER TASK correct_low_cutoff RESUME;
 ALTER TASK correct_warmup RESUME;
 ALTER TASK run_correction RESUME;
