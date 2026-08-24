@@ -66,7 +66,6 @@ $$;
 --
 -- Test Run
 --
--- UPDATE task_params SET test_stage = '' 
 CALL test_run_correction_run('2026-08-22 00:00:00'::TIMESTAMP, DATEADD('day', 1, '2026-08-22 00:00:00'::TIMESTAMP));
 
 LIST @corrected_outputs_stage/flow_0001/2026/08/22;
@@ -87,4 +86,7 @@ SELECT $file_path;
 SET exec_sql = 'SELECT $1 FROM ' || $file_path || ' LIMIT 2';
 EXECUTE IMMEDIATE $exec_sql;
 
--- SELECT $1 FROM @corrected_outputs_stage/flow_0001/2026/08/20/edc699de-50c2-4a11-986f-55ca3b8fe191/data_01c697ba-010a-de87-0031-da6f0009c886_007_2_0.snappy.parquet limit 2;
+
+
+---
+CALL test_run_correction_run('2026-08-18 00:00:00'::TIMESTAMP, DATEADD('day', 1, '2026-08-22 00:00:00'::TIMESTAMP));

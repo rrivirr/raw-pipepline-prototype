@@ -1,4 +1,3 @@
-
 -- generate the staged data
 COPY INTO @correction_stage/test/low-flow-test
   FROM (

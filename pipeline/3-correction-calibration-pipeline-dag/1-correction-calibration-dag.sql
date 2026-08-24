@@ -25,9 +25,6 @@ BEGIN
   CALL SYSTEM$SET_RETURN_VALUE( :output_staged_file );
 END;
     
-    
- --   SCHEDULE = 'USING CRON */5 * * * * UTC'
-
 
 
 CREATE OR REPLACE TASK correct_warmup
@@ -77,7 +74,6 @@ BEGIN
 END;
 
 
--- TODO: the EXPORT needs to ignore the prelude
 CREATE OR REPLACE TASK export
   WAREHOUSE=COMPUTE_WH
   AFTER correct_low_cutoff

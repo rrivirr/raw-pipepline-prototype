@@ -1,9 +1,6 @@
 -- copy the data into the s3 that goes back to tiger data for service
-
--- corrected data is exported to drive two processes
--- first, as a feed into the calibration pipeline 
--- second, as a patch to append/overwrite the most up to date raw import for serving
-
+-- this is merged into timescaledb as it arrives, overwriting the data service 
+-- data with the newest runs
 
 CREATE OR REPLACE PROCEDURE export_corrected_data(lineage VARCHAR(36), staged_file VARCHAR(255))
 RETURNS BOOLEAN
