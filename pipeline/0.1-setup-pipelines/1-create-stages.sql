@@ -4,6 +4,12 @@ CREATE STAGE IF NOT EXISTS correction_stage
 CREATE STAGE IF NOT EXISTS calibration_stage
   FILE_FORMAT = (TYPE = PARQUET);
 
+CREATE OR REPLACE STAGE corrected_outputs_stage
+  URL = 's3://rriv-corrected-raw/corrected-data-export/'
+  STORAGE_INTEGRATION = correction_s3_integration
+  FILE_FORMAT = (TYPE = PARQUET);
+
+
 
 CREATE OR REPLACE PROCEDURE load_from_stage (suffix VARCHAR(36), staged_file VARCHAR(36))
   -- CREATE OR REPLACE TEMPORARY TABLE file_intake LIKE TIGERLAKE_TSDB_PUBLIC_METER;

@@ -65,9 +65,11 @@ CREATE OR REPLACE TASK export
   WAREHOUSE=COMPUTE_WH
   AFTER correct_low_cutoff
 AS
+DECLARE
+  ctx VARIANT;
 BEGIN
-  LET intake_file := (SELECT SYSTEM$GET_PREDECESSOR_RETURN_VALUE('CORRECT_LOW_CUTOFF'));
-  CALL export_corrected_data(:intake_file);
+  CALL resolve_predecessor_context('CORRECT_LOW_CUTOFF') INTO :ctx;
+  CALL export_corrected_data(:ctx:lineage::STRING, :ctx:intake_file::STRING);
   CALL export_new_lineage_records();
 END;
 
