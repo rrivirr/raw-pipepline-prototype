@@ -45,7 +45,7 @@ Numbered directories run in order; `*.test.sql` files sit beside the step they v
 ## Example Output
 
 ### Lineage record for a single automatic processing or manual re-processing run
-
+```
 +--------------------------------------+-------------------------+--------------------------------------------+-------------------------------------------+
 | LINEAGE ID                           | CREATED_AT              | ATTRIBUTES                                 | DEVICES                                   |
 |--------------------------------------+-------------------------+--------------------------------------------+-------------------------------------------|
@@ -67,6 +67,7 @@ Numbered directories run in order; `*.test.sql` files sit beside the step they v
 |                                      |                         |   }                                        |                                           |
 |                                      |                         | }                                          |                                           |
 +--------------------------------------+-------------------------+--------------------------------------------+-------------------------------------------+
+```
 
 ## How to Operate
 The pipeline is operated and controlled via SnowSQL or SnowSight.  The snowsight/ directory contains example scripts for various operations.
@@ -116,10 +117,12 @@ VALUES ('flow_0001', 'linear', OBJECT_CONSTRUCT('m', 0.8, 'b', 0.22), $transitio
 ```
 
 ### Run pipeline
+```
 CALL test_run_correction_run('2026-08-18 00:00:00'::TIMESTAMP, DATEADD('day', 1, '2026-08-22 00:00:00'::TIMESTAMP));
-
+```
 
 ### Investigate Lineage 
+```
 SELECT
     l.id,
     l.created_at,
@@ -134,4 +137,4 @@ FROM lineage l
 LEFT JOIN device_lineage dl
     ON dl.group_lineage = l.id
 GROUP BY l.id, l.created_at, l.attributes;
-
+```
