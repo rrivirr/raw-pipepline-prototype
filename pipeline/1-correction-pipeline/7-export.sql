@@ -5,8 +5,8 @@
 -- second, as a patch to append/overwrite the most up to date raw import for serving
 
 
-CREATE OR REPLACE PROCEDURE export_corrected_data(staged_file VARCHAR(255))
-RETURNS BOOL
+CREATE OR REPLACE PROCEDURE export_corrected_data(lineage VARCHAR(36), staged_file VARCHAR(255))
+RETURNS BOOLEAN
 LANGUAGE SQL
 AS
 $$
@@ -19,17 +19,20 @@ BEGIN
   -- load the file and query to remove any columns we don't want to push back to timescaldb
   call load_from_stage ('done', :staged_file) INTO :temporary_table;
 
-  
-  file_path := 's3://rriv-corrected-raw/corrected-data-export/'
-               || TO_VARCHAR(CURRENT_TIMESTAMP(), 'YYYY-MM-DD"T"HH24-MI-SS')
-               || '_corrected_data.parquet';
-
-  copy_sql := 'COPY INTO ''' || file_path || '''
-              FROM ( SELECT serial_number, rate, length, measured_at, id 
-              FROM ' || :temporary_table || ' )
-              STORAGE_INTEGRATION = correction_s3_integration
-              FILE_FORMAT = (TYPE = PARQUET)
-              ';
+  copy_sql := 'COPY INTO @corrected_outputs_stage/
+  FROM (
+      SELECT
+          serial_number || ''/''
+          || TO_VARCHAR(measured_at, ''YYYY/MM/DD'') || ''/''
+          || ''' || :lineage || '''  AS partition_path,
+          *
+      FROM ' || :temporary_table || '
+  )
+  PARTITION BY (partition_path)
+  FILE_FORMAT = (TYPE = PARQUET)
+  HEADER=TRUE
+  MAX_FILE_SIZE = 100000000;
+  ';
 
   EXECUTE IMMEDIATE copy_sql;
 
