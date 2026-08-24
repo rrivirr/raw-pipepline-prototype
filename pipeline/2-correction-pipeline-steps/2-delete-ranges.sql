@@ -1,8 +1,23 @@
--- ranges that are known would be deleted here
--- how does the pipeline know what ranges need to be deleted?
--- does it need to check with an external API ?
--- delete ranges can be loaded in via the same idea as the original data, the lake connector
--- same goes for the control domain
--- and even job signaling???
+-- ignore ranges of data on a device specific basis
+-- not implemented
+CREATE OR REPLACE PROCEDURE ignore_ranges(lineage VARCHAR(36), staged_file VARCHAR(255))
+  RETURNS STRING
+  AS
+  $$
+DECLARE
+  copy_sql STRING;
+  correction_sql STRING;
+  step_name STRING;
+  output_file STRING;
+  insert_sql STRING;
+BEGIN
 
--- this task is a view, not a copy.
+  CALL update_lineage(:lineage,  
+    :step_name,
+    OBJECT_CONSTRUCT('ignore_ranges', 'skipped')
+  );
+  
+  RETURN staged_file;
+
+END;
+$$;

@@ -56,7 +56,7 @@ BEGIN
     OBJECT_CONSTRUCT('low_cutoff', 'applied')
   );
 
-  -- update device lineage
+  -- update device data lineage
   insert_sql := '
     INSERT INTO device_lineage (group_lineage, serial_number, attributes)
     SELECT
