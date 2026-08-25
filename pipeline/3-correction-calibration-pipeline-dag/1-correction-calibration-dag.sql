@@ -128,7 +128,7 @@ $$;
 
 CREATE OR REPLACE TASK export
   WAREHOUSE=COMPUTE_WH
-  AFTER correct_low_cutoff
+  AFTER apply_calibrations
 AS
   CALL run_export();
 
