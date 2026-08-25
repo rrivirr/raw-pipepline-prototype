@@ -8,11 +8,6 @@ This project presents a proof of concept for moving low level data processing to
 ## Technical Summary
 This project is built to consume data from the existing RRIV open source environmental sensor device inventory and telemetry platform, which ingests data into TimescaleDB.  Data is synced through Iceberg tables to Snowflake for pipeline processing.  Processing runs through a DAG in Snowflake, with control parameters for each step stored in a lineage tracking table that is later exported back to TimescaleDB along with the corrected and calibrated data for service.  The pipeline runs automated every hour, or can be triggered for arbitrary date range rerun to process changes in control parameters.  Control parameters are updated through database tables.  Data outputs are synced back to TimscaleDB via S3 and patch overwrite data from previous in the official data service tables.
 
-For this proof of concept, some simplifications were made. 
-* APIs for control updates and pipeline outputs are not implemented.  
-* Device specific calibration is not implemented, with all devices uses thes same calibration equation and parameters.
-* Several correction steps were left unimplemented, with algorithm development left to data science.
-
 
 ## Goals
 1. Build a raw data correction and calibration pipeline with control and lineage tracking.
@@ -142,3 +137,11 @@ LEFT JOIN device_lineage dl
     ON dl.group_lineage = l.id
 GROUP BY l.id, l.created_at, l.attributes;
 ```
+
+## Notes
+For this proof of concept, some simplifications were made. 
+* APIs for control updates and pipeline outputs are not implemented.  
+* Device specific calibration is not implemented, with all devices uses thes same calibration equation and parameters.
+* Several correction steps were left unimplemented, with algorithm development left to data science.
+
+
