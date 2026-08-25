@@ -5,7 +5,7 @@
 
 CREATE OR REPLACE TEMPORARY TABLE calibrated_values (
     serial_number VARCHAR(36),
-    measured_at DATETIME,
+    measured_at TIMESTAMP,
     calibrated_value NUMERIC(12,6),
     partition_path VARCHAR(100),
     lineage VARCHAR(36)
