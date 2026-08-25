@@ -24,7 +24,7 @@ EXECUTE IMMEDIATE copy_sql;
 -- TODO: PARSE_JSON is a bad idea here, transmit an array of decimal values instead
 calibration_sql := '
 CREATE OR REPLACE TEMPORARY TABLE ' || :step_name || ' AS
-  SELECT file_intake.id, file_intake.serial_number, measured_at, calibration_type, rate, parameters
+  SELECT file_intake.id, file_intake.serial_number, measured_at, calibration_type, rate, parameters,
     CASE calibration_type
       WHEN \'linear\' THEN  calibration_linear(rate, PARSE_JSON(parameters):m::FLOAT, PARSE_JSON(parameters):b::FLOAT)
       WHEN \'parabolic\' THEN 0
