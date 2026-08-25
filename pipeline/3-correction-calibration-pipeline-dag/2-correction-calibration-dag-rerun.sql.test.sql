@@ -4,7 +4,7 @@
 -- test generated
 -- prompt: generate a snowflake procedure to test the pass/fail status of an entire DAG run.s
 
-CREATE OR REPLACE PROCEDURE test_run_correction_run(start_at DATETIME, until DATETIME)
+CREATE OR REPLACE PROCEDURE test_run_correction_run(start_at TIMESTAMP, until TIMESTAMP)
 RETURNS STRING
 LANGUAGE SQL
 AS
