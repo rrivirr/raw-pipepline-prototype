@@ -1,6 +1,7 @@
 
 CREATE OR REPLACE PROCEDURE run_correction_setup()
  RETURNS STRING
+ EXECUTE AS CALLER
   AS
   $$
 DECLARE
@@ -22,6 +23,7 @@ BEGIN
   CALL new_processing_lineage() INTO :lineage;
 
   CALL take_data(:effective_start_at, :effective_until, :lineage) INTO :output_staged_file;
+  CALL SYSTEM$SET_RETURN_VALUE(:output_staged_file);
   RETURN :output_staged_file;
 
 END;
@@ -37,6 +39,7 @@ AS
 
 CREATE OR REPLACE PROCEDURE run_correct_warmup()
  RETURNS STRING
+ EXECUTE AS CALLER
   AS
   $$
 DECLARE
@@ -45,6 +48,7 @@ DECLARE
 BEGIN
   CALL resolve_predecessor_context('RUN_CORRECTION') INTO :ctx;
   CALL correct_warmup(:ctx:lineage::STRING, :ctx:intake_file::STRING) INTO :output_staged_file;
+  CALL SYSTEM$SET_RETURN_VALUE(:output_staged_file);
   RETURN :output_staged_file;
 END;
 $$;
@@ -58,6 +62,7 @@ AS
 
 CREATE OR REPLACE PROCEDURE run_correct_low_cutoff()
   RETURNS STRING
+  EXECUTE AS CALLER
   AS
   $$
 DECLARE
@@ -66,6 +71,7 @@ DECLARE
 BEGIN
   CALL resolve_predecessor_context('CORRECT_WARMUP') INTO :ctx;
   CALL correct_low_cutoff(:ctx:lineage::STRING, :ctx:intake_file::STRING) INTO :output_staged_file;
+  CALL SYSTEM$SET_RETURN_VALUE(:output_staged_file);
   RETURN :output_staged_file;
 END;
 $$;
@@ -82,6 +88,7 @@ AS
 
 CREATE OR REPLACE PROCEDURE run_apply_calibrations()
   RETURNS STRING
+  EXECUTE AS CALLER
   AS
   $$
 DECLARE
@@ -90,6 +97,7 @@ DECLARE
 BEGIN
   CALL resolve_predecessor_context('CORRECT_LOW_CUTOFF') INTO :ctx;
   CALL apply_calibrations(:ctx:lineage::STRING, :ctx:intake_file::STRING) INTO :output_staged_file;
+  CALL SYSTEM$SET_RETURN_VALUE(:output_staged_file);
   RETURN :output_staged_file;
 END;
 $$;
