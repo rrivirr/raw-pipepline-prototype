@@ -1,3 +1,4 @@
+# Install and run
 1. Copy install.env.example to install.env
 2. Populate with your snowflake credentials
 3. Run ./install.sh
