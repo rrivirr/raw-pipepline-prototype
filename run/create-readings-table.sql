@@ -1,0 +1,7 @@
+CREATE OR REPLACE TABLE TIGERLAKE_TSDB_PUBLIC_METER (
+    serial_number VARCHAR,
+    rate NUMBER(12,6),
+    length NUMBER(12,6),
+    measured_at TIMESTAMP_NTZ(6) NOT NULL,
+    id VARCHAR NOT NULL
+);
