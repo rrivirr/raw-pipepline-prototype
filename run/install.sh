@@ -24,6 +24,9 @@ set +a
 echo "== create-readings-table.sql" | tee -a "$LOG"
 snowsql -o exit_on_error=true -o friendly=false -f create-readings-table.sql
 
+cd data
+tar -xvzf data1.sql.tar.gz
+cd ../
 echo "== data/data1.csv -> TIGERLAKE_TSDB_PUBLIC_METER" | tee -a "$LOG"
 echo "skipping data import - needs fix"
 #snowsql -o exit_on_error=true -o friendly=false <<SQL
