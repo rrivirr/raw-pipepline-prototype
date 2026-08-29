@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Installs the correction/calibration DAG artifacts into Snowflake via SnowSQL,
-# then loads data1.csv into TIGERLAKE_TSDB_PUBLIC_METER.
+# then loads data1.csv.tar.gz into TIGERLAKE_TSDB_PUBLIC_METER.
 #
 # Requires ../install.env with SnowSQL connection parameters, e.g.:
 #   SNOWSQL_ACCOUNT=myorg-myaccount
