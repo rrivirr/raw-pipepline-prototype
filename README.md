@@ -22,7 +22,7 @@ This project is built to consume data from the existing RRIV open source environ
 ├── diagrams/           Diagrams describing and scoping the proof of concept
 ├── infra/              Terraform + AWS/Snowflake/Tiger Cloud resource provisioning
 ├── pipeline/           Snowflake SQL correction & calibration pipeline
-├── run/                Install and run the pipeline in a fresh Snowflake db, wip.
+├── deploy/             Install and run the pipeline in a fresh Snowflake warehouse
 ├── snowsight/          Snowsight worksheets / dashboards
 └── README.md           Project overview and operating instructions
 ```

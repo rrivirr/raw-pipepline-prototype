@@ -22,7 +22,8 @@ set +a
 
 
 echo "== create-readings-table.sql" | tee -a "$LOG"
-snowsql -o exit_on_error=true -o friendly=false -f create-readings-table.sql
+snowsql -o exit_on_error=true -o friendly=false -f tables/create-readings-table.sql
+snowsql -o exit_on_error=true -o friendly=false -f tables/create-calibrations-table.sql
 
 cd data
 tar -xvzf data1.csv.tar.gz
