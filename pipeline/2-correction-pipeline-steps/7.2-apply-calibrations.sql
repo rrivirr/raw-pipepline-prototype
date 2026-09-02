@@ -52,13 +52,15 @@ CALL update_lineage(:lineage,
   -- TODO: update device data lineage
   -- insert_sql := '
   --   INSERT INTO device_lineage (group_lineage, serial_number, attributes)
-  --   SELECT
-  --       ''' || :lineage || ''',
-  --       serial_number,
-  --       OBJECT_CONSTRUCT(''calibration'', low_cutoff)
-  --   FROM (
-  --     SELECT ARRAY_AGG(DISTINCT OBJECT_CONSTRUCT('serial_number', serial_number, 'calibration_type', calibration_type)) AS records
-  --     FROM (SELECT DISTINCT serial_number, calibration_type FROM correction_control);
+    -- SELECT
+    --     ''' || :lineage || ''',
+    --     serial_number,
+    --     OBJECT_CONSTRUCT(''calibration'', low_cutoff)
+    -- FROM (
+    --   SELECT ARRAY_AGG(DISTINCT OBJECT_CONSTRUCT('serial_number', serial_number, 'calibration_type', calibration_type, 
+    --   'paramters', parameters, 
+    --   'start_date', start_date)) AS records
+    --   FROM (SELECT DISTINCT serial_number, calibration_type, parameters, start_date FROM TIGERLAKE_TSDB_PUBLIC_CALIBRATION);
   --   );
   -- ';
 
