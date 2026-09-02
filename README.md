@@ -89,7 +89,7 @@ WHERE serial_number = 'flow_0001';
 ```
 
 ### Update Calibrations
-Calibrations are synced from TimescaleDB, where an API planned.  For test purposes, however, these can just be updated in Snowflake
+Calibrations are synced from TimescaleDB, where an API is planned.  For test purposes, however, these can just be updated in Snowflake
 
 
 ```
