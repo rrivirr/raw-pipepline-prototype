@@ -19,7 +19,7 @@ This project is built to consume data from the existing RRIV open source environ
 ```
 .
 ├── db/                 TimescaleDB ingest & serving schema (SQLAlchemy + Alembic)
-├── diagrams/           Diagrams describing and scoping the proof of concept
+├── diagrams/           Diagrams describing and scoping the proof of concept and data flow.
 ├── deploy/             Install and run the pipeline in a fresh Snowflake warehouse
 ├── infra/              Terraform + AWS/Snowflake/Tiger Cloud resource provisioning
 ├── pipeline/           Snowflake SQL correction & calibration pipeline
@@ -38,8 +38,12 @@ Numbered directories run in order; `*.test.sql` files sit beside the step they v
 | `2-correction-pipeline-steps/` | Per-step SQL: claim data → delete ranges → warmup, low-cutoff and drift corrections → quality flags → apply calibrations → export |
 | `3-correction-calibration-pipeline-dag/` | Snowflake task DAG plus a manual re-run variant |
 
-## Diagram
+## Diagrams
+### Raw data correction and calibration pipeline with control and lineage tracking.
 ![Pipeline Proof of Concept Diagram](diagrams/proof-of-concept-build.png)
+
+### TimescaleDB to Iceberg integration and round trip architecture. 
+![Data Flow](diagrams/data-flow.png)
 
 ## Example Output
 
